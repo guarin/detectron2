@@ -1,5 +1,5 @@
 # Build from the root of the repository with:
-# docker build -f docker/Dockerfile -t detectron2:v0 .
+# docker build -f docker/Dockerfile --build-arg USER_ID=$UID -t detectron2:v0 .
 
 FROM nvidia/cuda:11.1.1-cudnn8-devel-ubuntu20.04
 # use an older system (18.04) to avoid opencv incompatibility (issue#3524)
