@@ -1,4 +1,7 @@
-FROM nvidia/cuda:11.1.1-cudnn8-devel-ubuntu18.04
+# Build from the root of the repository with:
+# docker build -f docker/Dockerfile --build-arg USER_ID=$UID -t detectron2:v0 .
+
+FROM nvidia/cuda:11.1.1-cudnn8-devel-ubuntu20.04
 # use an older system (18.04) to avoid opencv incompatibility (issue#3524)
 
 ENV DEBIAN_FRONTEND noninteractive
@@ -20,12 +23,16 @@ RUN wget https://bootstrap.pypa.io/pip/3.6/get-pip.py && \
 
 # install dependencies
 # See https://pytorch.org/ for other options if you use a different version of CUDA
-RUN pip install --user tensorboard cmake onnx   # cmake from apt-get is too old
+RUN pip install --user tensorboard==2.4.1 "setuptools<=59.5.0" "protobuf<=3.20"  cmake onnx   # cmake from apt-get is too old
 RUN pip install --user torch==1.10 torchvision==0.11.1 -f https://download.pytorch.org/whl/cu111/torch_stable.html
 
 RUN pip install --user 'git+https://github.com/facebookresearch/fvcore'
 # install detectron2
-RUN git clone https://github.com/facebookresearch/detectron2 detectron2_repo
+# RUN git clone https://github.com/facebookresearch/detectron2 detectron2_repo
+COPY . detectron2_repo
+RUN sudo chown -R appuser detectron2_repo
+
+
 # set FORCE_CUDA because during `docker build` cuda is not accessible
 ENV FORCE_CUDA="1"
 # This will by default build detectron2 for all common cuda architectures and take a lot more time,
@@ -34,6 +41,7 @@ ARG TORCH_CUDA_ARCH_LIST="Kepler;Kepler+Tesla;Maxwell;Maxwell+Tegra;Pascal;Volta
 ENV TORCH_CUDA_ARCH_LIST="${TORCH_CUDA_ARCH_LIST}"
 
 RUN pip install --user -e detectron2_repo
+RUN pip install --user "numpy<1.20"
 
 # Set a fixed model cache directory.
 ENV FVCORE_CACHE="/tmp"
