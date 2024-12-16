@@ -363,7 +363,7 @@ def build_batch_data_loader(
             num_workers=num_workers,
             collate_fn=operator.itemgetter(0),  # don't batch, but yield individual elements
             worker_init_fn=worker_init_reset_seed,
-            prefetch_factor=prefetch_factor if num_workers > 0 else 0,
+            prefetch_factor=prefetch_factor if num_workers > 0 else 2, # prefetch factor must be 2 for num_workers == 0
             persistent_workers=persistent_workers,
             pin_memory=pin_memory,
             generator=generator,
@@ -381,7 +381,7 @@ def build_batch_data_loader(
             num_workers=num_workers,
             collate_fn=trivial_batch_collator if collate_fn is None else collate_fn,
             worker_init_fn=worker_init_reset_seed,
-            prefetch_factor=prefetch_factor if num_workers > 0 else 0,
+            prefetch_factor=prefetch_factor if num_workers > 0 else 2, # prefetch factor must be 2 for num_workers == 0
             persistent_workers=persistent_workers,
             pin_memory=pin_memory,
             generator=generator,
